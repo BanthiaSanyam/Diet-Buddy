@@ -4,7 +4,7 @@
  */
 
 // API base URL - gets the base URL from the environment or defaults to localhost
-const API_URL = import.meta.env.VITE_API_URL || 'https://dietbuddy-ilq5.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || 'https://dietbuddy-ilq5.onrender.com/api';
 
 /**
  * Send a message to the chatbot and get a response
