@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Premium color palette inspired by healthy eating and fitness */
+  --color-primary: #3e885b; /* Rich green - represents health and vitality */
+  --color-primary-dark: #2c6a43; /* Darker shade for hover states */
+  --color-primary-light: #7bb793; /* Lighter shade for accents */
+  
+  --color-secondary: #d6917a; /* Soft coral - represents energy and warmth */
+  --color-secondary-dark: #c47a61; /* Darker shade for hover states */
+  
+  --color-accent: #f5b87f; /* Warm peach - represents vitality */
+  --color-accent-dark: #e0a66d; /* Darker shade for hover states */
+  
+  --color-dark: #1a2328; /* Deep charcoal - replaces black for text */
+  --color-dark-alt: #2d3a42; /* Slightly lighter dark for backgrounds */
+  
+  --color-light: #f7f9f5; /* Off-white with hint of green */
+  --color-light-alt: #e8ede5; /* Slightly darker light for backgrounds */
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-dark);
+  color: var(--color-light);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom button styles */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition-property: background-color;
+  transition-duration: 200ms;
+}
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition-property: background-color;
+  transition-duration: 200ms;
+}
+.btn-secondary:hover {
+  background-color: var(--color-secondary-dark);
+}
+
+.btn-accent {
+  background-color: var(--color-accent);
+  color: var(--color-dark);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition-property: background-color;
+  transition-duration: 200ms;
+}
+.btn-accent:hover {
+  background-color: var(--color-accent-dark);
+}
+
+/* Card styles */
+.premium-card {
+  background-image: linear-gradient(to bottom right, var(--color-dark-alt), var(--color-dark));
+  border-radius: 0.75rem;
+  padding: 2rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(123, 183, 147, 0.2); /* Using --color-primary-light with opacity */
+}
+
+/* Typography enhancements */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-medium;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-dark-alt);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-dark);
+}
+
+/* Add subtle grain texture for premium feel */
+.texture-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c4zIgLAAABVUlEQVRIx+3W2W6DMBBF0cMYA4FAaSht+v8f2glkwHibSdWHPPUCLrYJOB7H/zSOYzRNU9u2bdvpum7rx/d9PcvneRnHcRzHcRzHcRzHcRwfqrQuFMGTHKzLvRg4j9nYbUxkMMeqCJkpbfWxOJjZ9JTqilv5bg+rJSDF7lppR6owIOXuU5UGpTxsSmFUitOgVMel8g5KdU3uO97PTUNTW7h5wRtlJq+WcTOmvVKZA1KMSSmmA1KMSSnvAmsvpqhcQSkH3Ejp6ILSDUl5F5JKGJRSDEp5eJTy3cW8K+2X2gSUcm+mwPM39RRUcCYk5d5MjEl5F5LqLiTl3kyRoFQnK1OrDaTcW1NkaMrxoJR3ASmvA1LerSl2b6fQvSmBcFfaL7X0S3kXlPpU7kKr0i/FmJR735gxKe8CUt5dSPlwFRh71dSx1y314T/I8Xi8AHv9V9La2Q7ZAAAAAElFTkSuQmCC");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Custom styles using regular CSS instead of @layer */
+body {
+  /* Removing conflicting background-color and color that override the new theme */
+  /* background-color: #111827; */
+  /* color: #f3f4f6; */
+}
+
+.card {
+  background-color: #1f2937;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition-property: box-shadow;
+  transition-duration: 200ms;
+}
+.card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.input-field {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #f3f4f6;
+  border-radius: 0.5rem;
+  width: 100%;
+  display: block;
+}
+.input-field:focus {
+  outline: none;
+  ring-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.text-shadow {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+} 
+
+select{
+  color: #1a2328;
+}
+
+button {
+  color: white;
+  padding: 6px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* button:hover {
+  background-color: #45a049;
+} */
