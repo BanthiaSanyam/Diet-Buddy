@@ -129,16 +129,12 @@ const Membership = () => {
   }, [authLoading, user, navigate]);
   
   // Safe function to update user data that works with or without setUser
-  const safeUpdateUser = async (userData) => {
+ 
+const safeUpdateUser = async (userData) => {
     try {
       if (typeof setUser === 'function') {
-        // If setUser is available, use it directly
-        setUser(prev => ({
-          ...prev,
-          ...userData
-        }));
+        setUser(prev => ({ ...prev, ...userData }));
       } else if (typeof updateProfile === 'function') {
-        // Otherwise use updateProfile as fallback
         await updateProfile(userData);
       } else {
         console.warn('No method available to update user data');
@@ -147,195 +143,74 @@ const Membership = () => {
       console.error('Error updating user data:', error);
     }
   };
-  
+
   const handleUpgrade = async (planId) => {
     if (!user) {
       navigate('/login?redirect=membership');
       return;
     }
-    
+
     try {
       setPaymentLoading(true);
       setPaymentStatus({ message: null, type: null });
-      
-      // Display initial processing message
+
+      // In development mode, allow test upgrades
+      if (process.env.NODE_ENV === 'development') {
+        setPaymentStatus({
+          message: "Development mode: Using test upgrade flow...",
+          type: 'info'
+        });
+        return handleTestUpgrade(planId);
+      }
+
+      // Production mode - real payment flow
       setPaymentStatus({
         message: "Preparing your upgrade...",
         type: 'info'
       });
-      
-      // Load Razorpay SDK first
+
+      // Load Razorpay SDK
       const isScriptLoaded = await loadRazorpayScript();
-      
       if (!isScriptLoaded) {
-        console.error('Failed to load Razorpay script');
-        setPaymentStatus({
-          message: "Failed to load payment gateway. Please try again later.",
-          type: 'error'
-        });
-        setPaymentLoading(false);
-        return;
+        throw new Error("Failed to load payment gateway");
       }
-      
-      // Verify Razorpay is properly initialized
+
       if (!verifyRazorpay()) {
-        console.error('Razorpay verification failed');
-        setPaymentStatus({
-          message: "Payment gateway not properly initialized. Please try again.",
-          type: 'error'
-        });
-        setPaymentLoading(false);
-        return;
+        throw new Error("Payment gateway not initialized");
       }
-      
-      console.log('Razorpay SDK loaded and verified');
-      
+
       // Create order based on plan type
-      try {
-        // Get the Razorpay key via our API hook instead of direct fetch
-        setPaymentStatus({
-          message: "Contacting payment gateway...",
-          type: 'info'
-        });
-        
-        const keyData = await getApi('payments/get-key');
-        console.log('Received key data:', keyData);
-        
-        if (!keyData || !keyData.configured) {
-          console.log('Razorpay not properly configured on server, falling back to test mode');
-          // Only use test mode if in development and Razorpay is not configured
-          if (process.env.NODE_ENV === 'development') {
-            return handleTestUpgrade(planId);
-          } else {
-            throw new Error('Payment system is currently unavailable. Please try again later.');
-          }
-        }
-        
-        // Proceed with creating a real order
-        setPaymentStatus({
-          message: "Creating payment order...",
-          type: 'info'
-        });
-        
-        console.log(`Creating ${planId} order`);
-        const orderResponse = planId === 'premium' 
-          ? await createOrder()
-          : await createMonthlyOrder();
-          
-        console.log('Order response:', orderResponse);
-        
-        if (!orderResponse) {
-          throw new Error('Failed to create payment order - no response from server');
-        }
-        
-        // Check for error in response
-        if (orderResponse.error) {
-          throw new Error(`Payment error: ${orderResponse.message || orderResponse.error}`);
-        }
-        
-        if (!orderResponse.orderId) {
-          throw new Error('Invalid order response - missing order ID');
-        }
-        
-        console.log('Order created successfully:', orderResponse.orderId);
-        
-        // Track if this is a real or dummy order
-        const isDummyOrder = orderResponse.isDummyOrder === true;
-        
-        if (isDummyOrder && process.env.NODE_ENV === 'development') {
-          console.log('Received dummy order, using test upgrade flow');
-          return handleDummyOrderVerification(orderResponse, planId);
-        }
-        
-        // Initialize and configure Razorpay for a real payment
-        initializeRazorpay(orderResponse, planId);
-        
-      } catch (orderError) {
-        console.error('Order creation error:', orderError);
-        let errorMessage = 'Unable to create payment order';
-        
-        // Extract more detailed error message if available
-        if (orderError.message) {
-          if (orderError.message.includes('Payment error:')) {
-            errorMessage = orderError.message;
-          } else {
-            errorMessage += `: ${orderError.message}`;
-          }
-        }
-        
-        // Only fall back to test upgrade in development mode and for specific errors
-        if (process.env.NODE_ENV === 'development' && 
-            (errorMessage.includes('Unable to create payment order') || 
-             errorMessage.includes('Payment gateway not properly configured') ||
-             errorMessage.includes('is not valid JSON'))) {
-          console.log('Falling back to test upgrade in development mode due to order creation failure');
-          
-          setPaymentStatus({
-            message: "Razorpay unavailable. Trying test upgrade mode...",
-            type: 'info'
-          });
-          
-          // Only try test upgrade for specific error conditions
-          return handleTestUpgrade(planId);
-        }
-        
-        setPaymentStatus({
-          message: errorMessage,
-          type: 'error'
-        });
-        setPaymentLoading(false);
-      }
-    } catch (err) {
-      console.error('Payment error:', err);
       setPaymentStatus({
-        message: err.message || 'Failed to process payment. Please try again later.',
+        message: "Creating payment order...",
+        type: 'info'
+      });
+
+      const orderResponse = planId === 'premium' 
+        ? await createOrder() 
+        : await createMonthlyOrder();
+
+      if (!orderResponse?.orderId) {
+        throw new Error(orderResponse?.message || "Failed to create payment order");
+      }
+
+      // Initialize Razorpay payment
+      initializeRazorpay(orderResponse, planId);
+
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      setPaymentStatus({
+        message: error.message || 'Payment processing failed',
         type: 'error'
       });
       setPaymentLoading(false);
     }
   };
-  
-  // Helper to make API GET requests
-  const getApi = async (endpoint) => {
-    try {
-      const response = await fetch(`http://localhost:5007/api/${endpoint}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.indexOf("application/json") !== -1) {
-        return await response.json();
-      } else {
-        console.error('Non-JSON response:', await response.text());
-        return null;
-      }
-    } catch (error) {
-      console.error(`Error fetching ${endpoint}:`, error);
-      return null;
-    }
-  };
-  
-  // Separated test upgrade logic for clarity
+
   const handleTestUpgrade = async (planId) => {
     try {
-      console.log('Running test upgrade flow for development mode');
-      setPaymentStatus({
-        message: "Processing test upgrade (DEV MODE ONLY)...",
-        type: 'info'
-      });
-      
       const testUpgradeResult = await testUpgrade({ planType: planId });
       
       if (testUpgradeResult.success) {
-        // Update user data
         await safeUpdateUser({
           isMember: true,
           membershipType: planId,
@@ -343,97 +218,28 @@ const Membership = () => {
         });
         
         setPaymentStatus({
-          message: `Test upgrade successful! You are now a ${planId} member. (DEV MODE ONLY)`,
+          message: `Upgrade successful! You are now a ${planId} member.`,
           type: 'success'
         });
         
-        // Redirect after successful upgrade
-        setTimeout(() => {
-          navigate('/dashboard?upgraded=true&testMode=true');
-        }, 2000);
+        setTimeout(() => navigate('/dashboard?upgraded=true'), 2000);
       } else {
-        throw new Error('Test upgrade failed');
+        throw new Error(testUpgradeResult.message || 'Test upgrade failed');
       }
     } catch (error) {
-      console.error('Test upgrade error:', error);
       setPaymentStatus({
-        message: `Test upgrade failed: ${error.message}`,
+        message: error.message || 'Test upgrade failed',
         type: 'error'
       });
       setPaymentLoading(false);
     }
   };
-  
-  // Handle verification for dummy orders (development only)
-  const handleDummyOrderVerification = async (orderResponse, planId) => {
-    try {
-      console.log('Verifying dummy order in development mode');
-      
-      setPaymentStatus({
-        message: "Processing development mode payment...",
-        type: 'info'
-      });
-      
-      // Simulate Razorpay response for a dummy order
-      const dummyResponse = {
-        razorpay_payment_id: `dummy_payment_${Date.now()}`,
-        razorpay_order_id: orderResponse.orderId,
-        razorpay_signature: 'dummy_signature',
-        isDummyOrder: true
-      };
-      
-      // Verify the dummy payment
-      const verifyResponse = planId === 'premium'
-        ? await verifyPayment(dummyResponse)
-        : await verifyMonthlyPayment(dummyResponse);
-      
-      if (verifyResponse && verifyResponse.user) {
-        // Update local user data using the safe method
-        await safeUpdateUser(verifyResponse.user);
-        
-        // Show success message
-        setPaymentStatus({
-          message: `Development mode payment successful! You are now a ${planId === 'premium' ? 'yearly' : 'monthly'} premium member.`,
-          type: 'success'
-        });
-        
-        // Auto-redirect to dashboard after 2 seconds
-        setTimeout(() => {
-          navigate('/dashboard?upgraded=true&devMode=true');
-        }, 2000);
-      } else {
-        throw new Error('Payment verification failed: Invalid response');
-      }
-    } catch (error) {
-      console.error('Dummy order verification failed:', error);
-      setPaymentStatus({
-        message: `Payment verification failed: ${error.message || 'Unknown error'}.`,
-        type: 'error'
-      });
-      setPaymentLoading(false);
-    }
-  };
-  
-  // Extract Razorpay initialization to a separate function for clarity
+
   const initializeRazorpay = (orderResponse, planId) => {
-    // Validate required fields to prevent errors
     if (!orderResponse.orderId || !orderResponse.amount || !orderResponse.keyId) {
-      console.error('Missing required fields for Razorpay initialization:', orderResponse);
-      setPaymentStatus({
-        message: "Invalid payment configuration. Please try again later.",
-        type: 'error'
-      });
-      setPaymentLoading(false);
-      return;
+      throw new Error("Invalid payment configuration");
     }
-    
-    console.log('Initializing Razorpay with:', {
-      key: orderResponse.keyId,
-      amount: orderResponse.amount,
-      orderId: orderResponse.orderId
-    });
-    
-    // Configure Razorpay options
+
     const options = {
       key: orderResponse.keyId,
       amount: orderResponse.amount,
@@ -441,58 +247,34 @@ const Membership = () => {
       name: 'Diet Buddy',
       description: `${planId === 'premium' ? 'Yearly' : 'Monthly'} Premium Subscription`,
       order_id: orderResponse.orderId,
-      handler: async function(response) {
+      handler: async (response) => {
         try {
           setPaymentStatus({
             message: "Verifying payment...",
             type: 'info'
           });
-          
-          console.log('Payment success, verifying:', response.razorpay_payment_id);
-          
-          // Validate payment data for security
-          if (!response.razorpay_payment_id || 
-              !response.razorpay_order_id || 
-              !response.razorpay_signature) {
-            throw new Error('Invalid payment data received');
+
+          if (!response.razorpay_payment_id || !response.razorpay_order_id || !response.razorpay_signature) {
+            throw new Error('Invalid payment data');
           }
-          
-          // Verify the payment
+
           const verifyResponse = planId === 'premium'
-            ? await verifyPayment({
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-                isDummyOrder: orderResponse.isDummyOrder
-              })
-            : await verifyMonthlyPayment({
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-                isDummyOrder: orderResponse.isDummyOrder
-              });
-          
-          if (verifyResponse && verifyResponse.user) {
-            // Update local user data using the safe method
+            ? await verifyPayment(response)
+            : await verifyMonthlyPayment(response);
+
+          if (verifyResponse?.user) {
             await safeUpdateUser(verifyResponse.user);
-            
-            // Show success message
             setPaymentStatus({
               message: `Payment successful! You are now a ${planId === 'premium' ? 'yearly' : 'monthly'} premium member.`,
               type: 'success'
             });
-            
-            // Auto-redirect to dashboard after 2 seconds
-            setTimeout(() => {
-              navigate('/dashboard?upgraded=true');
-            }, 2000);
+            setTimeout(() => navigate('/dashboard?upgraded=true'), 2000);
           } else {
-            throw new Error('Payment verification failed: Invalid response');
+            throw new Error('Payment verification failed');
           }
         } catch (error) {
-          console.error('Payment verification failed:', error);
           setPaymentStatus({
-            message: `Payment verification failed: ${error.message || 'Unknown error'}. Please contact support.`,
+            message: error.message || 'Payment verification failed',
             type: 'error'
           });
           setPaymentLoading(false);
@@ -503,88 +285,39 @@ const Membership = () => {
         email: user?.email || '',
       },
       theme: {
-        color: '#7C3AED', // Match your primary color
+        color: '#7C3AED',
       },
       modal: {
-        ondismiss: function() {
-          console.log('Razorpay payment dialog dismissed by user');
+        ondismiss: () => {
           setPaymentLoading(false);
           setPaymentStatus({
             message: 'Payment cancelled',
             type: 'info'
           });
-        },
-        escape: true,
-        backdropclose: false
-      },
-      notes: {
-        user_id: user?._id || user?.id || 'guest'
+        }
       }
     };
-    
-    // Initialize and open Razorpay
+
     try {
-      console.log('Opening Razorpay payment dialog with key:', options.key);
-      
-      // Double-check that Razorpay is loaded
-      if (typeof window.Razorpay !== 'function') {
-        throw new Error('Razorpay SDK not loaded properly');
-      }
-      
       const razorpay = new window.Razorpay(options);
       
-      // Handle payment failures
-      razorpay.on('payment.failed', function(response) {
-        console.error('Payment failed:', response.error);
+      razorpay.on('payment.failed', (response) => {
         let errorMessage = 'Payment failed';
-        
-        if (response.error) {
-          if (response.error.description) {
-            errorMessage += `: ${response.error.description}`;
-          } else if (response.error.reason) {
-            errorMessage += `: ${response.error.reason}`;
-          } else if (response.error.source || response.error.step) {
-            errorMessage += ` during ${response.error.source || response.error.step}`;
-          }
-        }
-        
-        setPaymentStatus({
-          message: errorMessage,
-          type: 'error'
-        });
+        if (response.error?.description) errorMessage += `: ${response.error.description}`;
+        setPaymentStatus({ message: errorMessage, type: 'error' });
         setPaymentLoading(false);
       });
-      
-      // Open Razorpay payment dialog
-      console.log('Calling razorpay.open()');
+
       razorpay.open();
     } catch (error) {
-      console.error('Error initializing Razorpay:', error);
-      
-      // Check for specific errors
-      if (error.message.includes('SDK') || error.message.includes('script')) {
-        // Try to reload the script
-        setPaymentStatus({
-          message: 'Payment gateway failed to load. Please try again.',
-          type: 'error'
-        });
-        
-        // Try reloading the script if in development mode
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Falling back to test mode due to Razorpay script issue');
-          setTimeout(() => handleTestUpgrade(planId), 1000);
-          return;
-        }
-      } else {
-        setPaymentStatus({
-          message: 'Unable to initialize payment gateway. Please try again later.',
-          type: 'error'
-        });
-      }
-      
+      setPaymentStatus({
+        message: 'Unable to initialize payment',
+        type: 'error'
+      });
       setPaymentLoading(false);
     }
   };
+
   
   return (
     <div className="pt-16 px-4 max-w-7xl mx-auto bg-[var(--color-dark)] text-[var(--color-light)]">
