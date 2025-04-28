@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import axios from 'axios';
 
 // Base API URL
-const API_URL = 'http://localhost:5007/api';
+const API_URL = 'https://dietbuddy-ilq5.onrender.com';
 
 // Cache duration in milliseconds (5 seconds)
 const CACHE_DURATION = 5000;
