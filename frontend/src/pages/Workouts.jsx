@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const API_URL = 'http://localhost:5007/api';
+const API_URL = 'https://dietbuddy-ilq5.onrender.com/api';
 
 // Default categories with descriptions and image URLs
 const defaultWorkoutCategories = [
