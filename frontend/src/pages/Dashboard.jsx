@@ -261,7 +261,7 @@ const Dashboard = () => {
             const streakData = await getStreaksAndAchievements();
 
             // Fetch payment history for members
-            if (user.isMember && isMounted) {
+            if (premium && isMounted) {
               const paymentsData = await getPaymentHistory();
               if (isMounted && paymentsData && paymentsData.payments) {
                 setPaymentHistory(paymentsData.payments);
@@ -278,16 +278,16 @@ const Dashboard = () => {
           setShowCategoryDialog(true);
         }
         // Check if user has selected a workout category before and is a premium member
-        else if (user?.fitnessGoal && user?.isMember && isMounted) {
+        else if (user?.fitnessGoal && premium && isMounted) {
           const category = user.fitnessGoal;
           setSelectedCategory(category);
           setWorkoutPlan(generateWorkoutPlan(category));
           setMealPlan(generateMealPlan(category));
           setIndianMealPlan(generateIndianMealPlan(category));
-        } else if (isAuthenticated && user?.isMember && !user?.fitnessGoal && isMounted) {
+        } else if (isAuthenticated && premium && !user?.fitnessGoal && isMounted) {
           // Ask for category if premium user but no category selected
           setShowCategoryDialog(true);
-        } else if (user?.fitnessGoal && !user?.isMember && isMounted) {
+        } else if (user?.fitnessGoal && !premium && isMounted) {
           // User has a goal but is not premium - we'll still store their preference
           setSelectedCategory(user.fitnessGoal);
           // But won't generate premium plans
