@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # DietBuddy
 
 A fitness and nutrition platform to help users achieve their health goals through personalized workout plans and meal suggestions.
@@ -157,3 +158,7 @@ To use the chatbot feature, you need to:
    ```
    GEMINI_API_KEY=your_api_key_here
    ``` 
+=======
+# Diet-Buddy
+Diet Buddy your personalized Ai nutritionist
+>>>>>>> ebcc147c01f352763707c3b57b0a876c07daaad7
