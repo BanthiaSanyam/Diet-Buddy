@@ -65,7 +65,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+  origin: process.env.FRONTEND_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
@@ -131,6 +131,9 @@ app.use('/api/rewards', rewardsRoutes);
 app.use('/api/logs', logsRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/progress-photos', progressPhotosRoutes);
+
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Health check route
 app.get('/health', (req, res) => {

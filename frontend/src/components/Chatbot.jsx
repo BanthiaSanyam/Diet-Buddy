@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { sendMessage } from '../services/chatbotService';
-
+import {CoachAvatar} from '../pages/coachavatar';
 /**
  * Chatbot component that provides an AI assistant interface
  * Allows users to ask fitness and nutrition related questions
@@ -58,32 +58,18 @@ const Chatbot = () => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-1 right-2 z-50 pd-0">
       {/* Chatbot Button */}
-      <button
+      <button 
         onClick={toggleChatbot}
-        className="bg-green-700 hover:bg-green-800 text-white rounded-full p-3 shadow-lg transition-all duration-200 flex items-center justify-center"
-        style={{ width: '50px', height: '50px' }}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d={isOpen ? "M6 18L18 6M6 6l12 12" : "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"}
-          />
-        </svg>
+       className="bg-transparent p-0 m-0 border-none outline-none hover:bg-transparent active:bg-transparent focus:bg-transparent"
+    >
+        <CoachAvatar/>
       </button>
 
       {/* Chatbot Panel */}
       {isOpen && (
-        <div className="absolute bottom-16 right-0 w-80 md:w-96 bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden flex flex-col">
+        <div className="absolute bottom-16 right-0 w-80 md:w-96 bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden flex flex-col"  style={{ bottom: '7rem' }}>
           {/* Chatbot Header */}
           <div className="bg-green-700 text-white p-4 flex justify-between items-center">
             <div className="flex items-center">

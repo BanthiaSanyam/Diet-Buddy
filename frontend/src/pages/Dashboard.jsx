@@ -4,8 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import { useApi } from '../hooks/useApi';
 import { Link, useLocation } from 'react-router-dom';
 import TrackingPanel from '../components/TrackingPanel';
+import MealRecommendation from './mealRecomm';
 import React from 'react';
 import MembershipStatus from '../components/MembershipStatus';
+import StatsPage from './statepage';
+import DashboardTabs from './dashboardtabs';
+import FoodAnalyzer from './Buttondatapred';
 
 const workoutCategories = [
   { id: 1, name: 'Strength Training', description: 'Build muscle and increase strength' },
@@ -38,7 +42,7 @@ const generateWorkoutPlan = (category) => {
       { day: 'Friday', name: 'Deep Stretch and Recovery', duration: '50 mins', exercises: ['Foam Rolling (10 mins)', 'Static Stretching (20 mins holding each pose 45-60s)', 'PNF Stretching Techniques (15 mins)', 'Meditation and Breathing (5 mins)'] }
     ]
   };
-  
+
   return workoutPlans[category] || [];
 };
 
@@ -46,47 +50,55 @@ const generateMealPlan = (goal) => {
   // Targeted meal plans based on specific fitness goals
   const mealPlans = {
     'Strength Training': [
-      { day: 'Daily Plan', meals: [
-        { name: 'Protein-Rich Breakfast', calories: 550, description: 'Eggs (4 whites, 2 whole), oatmeal with berries, Greek yogurt with honey and nuts' },
-        { name: 'Mid-Morning Snack', calories: 250, description: 'Protein shake with banana and peanut butter' },
-        { name: 'Muscle-Building Lunch', calories: 650, description: 'Grilled chicken breast (6 oz), brown rice (1 cup), mixed vegetables, avocado' },
-        { name: 'Pre-Workout Snack', calories: 200, description: 'Apple with almond butter or rice cakes with tuna' },
-        { name: 'Post-Workout Recovery', calories: 350, description: 'Whey protein shake with dextrose/maltodextrin for glycogen replenishment' },
-        { name: 'Protein-Focused Dinner', calories: 550, description: 'Salmon/lean beef (6 oz), sweet potato, roasted vegetables, olive oil' }
-      ]}
+      {
+        day: 'Daily Plan', meals: [
+          { name: 'Protein-Rich Breakfast', calories: 550, description: 'Eggs (4 whites, 2 whole), oatmeal with berries, Greek yogurt with honey and nuts' },
+          { name: 'Mid-Morning Snack', calories: 250, description: 'Protein shake with banana and peanut butter' },
+          { name: 'Muscle-Building Lunch', calories: 650, description: 'Grilled chicken breast (6 oz), brown rice (1 cup), mixed vegetables, avocado' },
+          { name: 'Pre-Workout Snack', calories: 200, description: 'Apple with almond butter or rice cakes with tuna' },
+          { name: 'Post-Workout Recovery', calories: 350, description: 'Whey protein shake with dextrose/maltodextrin for glycogen replenishment' },
+          { name: 'Protein-Focused Dinner', calories: 550, description: 'Salmon/lean beef (6 oz), sweet potato, roasted vegetables, olive oil' }
+        ]
+      }
     ],
     'Cardio': [
-      { day: 'Daily Plan', meals: [
-        { name: 'Light Energy Breakfast', calories: 400, description: 'Whole grain toast with avocado, poached egg, and fruit' },
-        { name: 'Mid-Morning Fuel', calories: 150, description: 'Banana with a small handful of nuts or apple with string cheese' },
-        { name: 'Balanced Lunch', calories: 450, description: 'Mediterranean salad with grilled chicken, olive oil and balsamic vinegar, whole grain roll' },
-        { name: 'Afternoon Energy Boost', calories: 200, description: 'Greek yogurt with berries or hummus with vegetable sticks' },
-        { name: 'Light Pre-Cardio Snack', calories: 100, description: 'Small piece of fruit or half energy bar 30-45 mins before workout' },
-        { name: 'Recovery Dinner', calories: 500, description: 'Baked fish, quinoa, steamed vegetables, and leafy green salad' }
-      ]}
+      {
+        day: 'Daily Plan', meals: [
+          { name: 'Light Energy Breakfast', calories: 400, description: 'Whole grain toast with avocado, poached egg, and fruit' },
+          { name: 'Mid-Morning Fuel', calories: 150, description: 'Banana with a small handful of nuts or apple with string cheese' },
+          { name: 'Balanced Lunch', calories: 450, description: 'Mediterranean salad with grilled chicken, olive oil and balsamic vinegar, whole grain roll' },
+          { name: 'Afternoon Energy Boost', calories: 200, description: 'Greek yogurt with berries or hummus with vegetable sticks' },
+          { name: 'Light Pre-Cardio Snack', calories: 100, description: 'Small piece of fruit or half energy bar 30-45 mins before workout' },
+          { name: 'Recovery Dinner', calories: 500, description: 'Baked fish, quinoa, steamed vegetables, and leafy green salad' }
+        ]
+      }
     ],
     'HIIT': [
-      { day: 'Daily Plan', meals: [
-        { name: 'Power Breakfast', calories: 450, description: 'Protein pancakes made with oats, egg whites, and protein powder topped with fruit' },
-        { name: 'Mid-Morning Stabilizer', calories: 200, description: 'Apple with 1-2 tbsp natural almond butter' },
-        { name: 'Balanced Energy Lunch', calories: 550, description: 'Lean turkey or chicken wrap with avocado, vegetables, and a side of sweet potato' },
-        { name: 'Pre-HIIT Fuel', calories: 200, description: 'Rice cake with honey or half banana with small protein shake (1 hour before workout)' },
-        { name: 'Immediate Post-Workout', calories: 300, description: 'Protein shake with easily digestible carbs like banana or dextrose' },
-        { name: 'Recovery Dinner', calories: 500, description: 'Lean protein source, complex carbs like brown rice or quinoa, and anti-inflammatory vegetables' }
-      ]}
+      {
+        day: 'Daily Plan', meals: [
+          { name: 'Power Breakfast', calories: 450, description: 'Protein pancakes made with oats, egg whites, and protein powder topped with fruit' },
+          { name: 'Mid-Morning Stabilizer', calories: 200, description: 'Apple with 1-2 tbsp natural almond butter' },
+          { name: 'Balanced Energy Lunch', calories: 550, description: 'Lean turkey or chicken wrap with avocado, vegetables, and a side of sweet potato' },
+          { name: 'Pre-HIIT Fuel', calories: 200, description: 'Rice cake with honey or half banana with small protein shake (1 hour before workout)' },
+          { name: 'Immediate Post-Workout', calories: 300, description: 'Protein shake with easily digestible carbs like banana or dextrose' },
+          { name: 'Recovery Dinner', calories: 500, description: 'Lean protein source, complex carbs like brown rice or quinoa, and anti-inflammatory vegetables' }
+        ]
+      }
     ],
     'Flexibility': [
-      { day: 'Daily Plan', meals: [
-        { name: 'Anti-Inflammatory Breakfast', calories: 350, description: 'Smoothie with berries, spinach, flaxseed, ginger, turmeric, and plant protein' },
-        { name: 'Hydrating Mid-Morning', calories: 150, description: 'Fresh fruit with coconut water or green tea with honey' },
-        { name: 'Plant-Based Lunch', calories: 400, description: 'Quinoa bowl with roasted vegetables, avocado, nuts, and seeds with olive oil dressing' },
-        { name: 'Flexibility Support Snack', calories: 180, description: 'Chia seed pudding with berries or celery with almond butter' },
-        { name: 'Hydration Boost', calories: 100, description: 'Coconut water with lemon or fresh vegetable juice' },
-        { name: 'Light Anti-Inflammatory Dinner', calories: 450, description: 'Grilled fish with turmeric and ginger, steamed vegetables, and quinoa or sweet potato' }
-      ]}
+      {
+        day: 'Daily Plan', meals: [
+          { name: 'Anti-Inflammatory Breakfast', calories: 350, description: 'Smoothie with berries, spinach, flaxseed, ginger, turmeric, and plant protein' },
+          { name: 'Hydrating Mid-Morning', calories: 150, description: 'Fresh fruit with coconut water or green tea with honey' },
+          { name: 'Plant-Based Lunch', calories: 400, description: 'Quinoa bowl with roasted vegetables, avocado, nuts, and seeds with olive oil dressing' },
+          { name: 'Flexibility Support Snack', calories: 180, description: 'Chia seed pudding with berries or celery with almond butter' },
+          { name: 'Hydration Boost', calories: 100, description: 'Coconut water with lemon or fresh vegetable juice' },
+          { name: 'Light Anti-Inflammatory Dinner', calories: 450, description: 'Grilled fish with turmeric and ginger, steamed vegetables, and quinoa or sweet potato' }
+        ]
+      }
     ]
   };
-  
+
   return mealPlans[goal] || [];
 };
 
@@ -94,58 +106,66 @@ const generateIndianMealPlan = (goal) => {
   // Targeted Indian meal plans based on specific fitness goals
   const indianMealPlans = {
     'Strength Training': [
-      { day: 'Daily Plan', meals: [
-        { name: 'Protein-Rich Breakfast', calories: 550, description: 'Paneer bhurji with whole wheat parathas, sprouts salad, and a glass of buttermilk' },
-        { name: 'Mid-Morning Snack', calories: 250, description: 'Paneer tikka (4-5 pieces) with mint chutney or roasted chana with spices' },
-        { name: 'Muscle-Building Lunch', calories: 650, description: 'Chicken curry (or paneer curry for vegetarians), brown rice, dal, and mixed vegetable sabzi' },
-        { name: 'Pre-Workout Snack', calories: 200, description: 'Ragi porridge with nuts or multigrain roti wrap with paneer filling' },
-        { name: 'Post-Workout Recovery', calories: 350, description: 'Homemade protein shake with milk, banana, and 1 tbsp peanut butter' },
-        { name: 'Protein-Focused Dinner', calories: 550, description: 'Tandoori fish (or soya chunks masala for vegetarians), jowar roti, vegetable raita, and palak paneer' }
-      ]}
+      {
+        day: 'Daily Plan', meals: [
+          { name: 'Protein-Rich Breakfast', calories: 550, description: 'Paneer bhurji with whole wheat parathas, sprouts salad, and a glass of buttermilk' },
+          { name: 'Mid-Morning Snack', calories: 250, description: 'Paneer tikka (4-5 pieces) with mint chutney or roasted chana with spices' },
+          { name: 'Muscle-Building Lunch', calories: 650, description: 'Chicken curry (or paneer curry for vegetarians), brown rice, dal, and mixed vegetable sabzi' },
+          { name: 'Pre-Workout Snack', calories: 200, description: 'Ragi porridge with nuts or multigrain roti wrap with paneer filling' },
+          { name: 'Post-Workout Recovery', calories: 350, description: 'Homemade protein shake with milk, banana, and 1 tbsp peanut butter' },
+          { name: 'Protein-Focused Dinner', calories: 550, description: 'Tandoori fish (or soya chunks masala for vegetarians), jowar roti, vegetable raita, and palak paneer' }
+        ]
+      }
     ],
     'Cardio': [
-      { day: 'Daily Plan', meals: [
-        { name: 'Light Energy Breakfast', calories: 400, description: 'Vegetable upma, idli with sambar, or masala oats with vegetables and a small bowl of fruits' },
-        { name: 'Mid-Morning Fuel', calories: 150, description: 'Fruit chaat with a handful of mixed nuts or roasted makhana (fox nuts)' },
-        { name: 'Balanced Lunch', calories: 450, description: 'Multigrain roti, moong dal, mixed vegetable sabzi, and a small bowl of curd' },
-        { name: 'Afternoon Energy Boost', calories: 200, description: 'Dhokla with green chutney or cucumber and carrot sticks with hummus' },
-        { name: 'Light Pre-Cardio Snack', calories: 100, description: 'A small banana or a piece of jaggery with roasted sesame seeds' },
-        { name: 'Recovery Dinner', calories: 500, description: 'Grilled fish curry (or rajma for vegetarians), brown rice, cucumber raita, and stir-fried vegetables' }
-      ]}
+      {
+        day: 'Daily Plan', meals: [
+          { name: 'Light Energy Breakfast', calories: 400, description: 'Vegetable upma, idli with sambar, or masala oats with vegetables and a small bowl of fruits' },
+          { name: 'Mid-Morning Fuel', calories: 150, description: 'Fruit chaat with a handful of mixed nuts or roasted makhana (fox nuts)' },
+          { name: 'Balanced Lunch', calories: 450, description: 'Multigrain roti, moong dal, mixed vegetable sabzi, and a small bowl of curd' },
+          { name: 'Afternoon Energy Boost', calories: 200, description: 'Dhokla with green chutney or cucumber and carrot sticks with hummus' },
+          { name: 'Light Pre-Cardio Snack', calories: 100, description: 'A small banana or a piece of jaggery with roasted sesame seeds' },
+          { name: 'Recovery Dinner', calories: 500, description: 'Grilled fish curry (or rajma for vegetarians), brown rice, cucumber raita, and stir-fried vegetables' }
+        ]
+      }
     ],
     'HIIT': [
-      { day: 'Daily Plan', meals: [
-        { name: 'Power Breakfast', calories: 450, description: 'Vegetable poha with sprouts or besan cheela with paneer stuffing and a glass of lassi' },
-        { name: 'Mid-Morning Stabilizer', calories: 200, description: 'Ragi cookies or nuts and seed mix with jaggery' },
-        { name: 'Balanced Energy Lunch', calories: 550, description: 'Chicken/paneer tikka wrap with whole wheat roti, green chutney, and a side of mixed vegetable salad' },
-        { name: 'Pre-HIIT Fuel', calories: 200, description: 'A small bowl of muesli with milk or a paratha with minimal oil' },
-        { name: 'Immediate Post-Workout', calories: 300, description: 'Homemade protein shake with milk, banana, and honey' },
-        { name: 'Recovery Dinner', calories: 500, description: 'Grilled chicken (or tofu/paneer for vegetarians), quinoa pulao, dal, and a side of seasonal vegetable sabzi' }
-      ]}
+      {
+        day: 'Daily Plan', meals: [
+          { name: 'Power Breakfast', calories: 450, description: 'Vegetable poha with sprouts or besan cheela with paneer stuffing and a glass of lassi' },
+          { name: 'Mid-Morning Stabilizer', calories: 200, description: 'Ragi cookies or nuts and seed mix with jaggery' },
+          { name: 'Balanced Energy Lunch', calories: 550, description: 'Chicken/paneer tikka wrap with whole wheat roti, green chutney, and a side of mixed vegetable salad' },
+          { name: 'Pre-HIIT Fuel', calories: 200, description: 'A small bowl of muesli with milk or a paratha with minimal oil' },
+          { name: 'Immediate Post-Workout', calories: 300, description: 'Homemade protein shake with milk, banana, and honey' },
+          { name: 'Recovery Dinner', calories: 500, description: 'Grilled chicken (or tofu/paneer for vegetarians), quinoa pulao, dal, and a side of seasonal vegetable sabzi' }
+        ]
+      }
     ],
     'Flexibility': [
-      { day: 'Daily Plan', meals: [
-        { name: 'Anti-Inflammatory Breakfast', calories: 350, description: 'Turmeric milk with overnight soaked oats topped with fresh fruits and honey' },
-        { name: 'Hydrating Mid-Morning', calories: 150, description: 'Coconut water with a handful of soaked almonds or fresh fruit with a dash of rock salt' },
-        { name: 'Plant-Based Lunch', calories: 400, description: 'Khichdi with vegetables, a side of kadhi, and cucumber raita' },
-        { name: 'Flexibility Support Snack', calories: 180, description: 'Homemade trail mix with nuts, seeds, and dried fruits or roasted makhana' },
-        { name: 'Hydration Boost', calories: 100, description: 'Fresh lime water with mint and honey or fresh amla juice' },
-        { name: 'Light Anti-Inflammatory Dinner', calories: 450, description: 'Steamed fish (or mixed vegetable daliya for vegetarians) with minimal spices, lightly sautéed vegetables, and a small bowl of curd' }
-      ]}
+      {
+        day: 'Daily Plan', meals: [
+          { name: 'Anti-Inflammatory Breakfast', calories: 350, description: 'Turmeric milk with overnight soaked oats topped with fresh fruits and honey' },
+          { name: 'Hydrating Mid-Morning', calories: 150, description: 'Coconut water with a handful of soaked almonds or fresh fruit with a dash of rock salt' },
+          { name: 'Plant-Based Lunch', calories: 400, description: 'Khichdi with vegetables, a side of kadhi, and cucumber raita' },
+          { name: 'Flexibility Support Snack', calories: 180, description: 'Homemade trail mix with nuts, seeds, and dried fruits or roasted makhana' },
+          { name: 'Hydration Boost', calories: 100, description: 'Fresh lime water with mint and honey or fresh amla juice' },
+          { name: 'Light Anti-Inflammatory Dinner', calories: 450, description: 'Steamed fish (or mixed vegetable daliya for vegetarians) with minimal spices, lightly sautéed vegetables, and a small bowl of curd' }
+        ]
+      }
     ]
   };
-  
+
   return indianMealPlans[goal] || [];
 };
 
 const Dashboard = () => {
   const { user, isAuthenticated, updateProfile } = useAuth();
-  const { 
-    loading, 
-    getAllWorkouts: apiGetAllWorkouts, 
-    getFeaturedMeals: apiGetFeaturedMeals, 
-    getSubscriptionStatus: apiGetSubscriptionStatus, 
-    getPaymentHistory: apiGetPaymentHistory, 
+  const {
+    loading,
+    getAllWorkouts: apiGetAllWorkouts,
+    getFeaturedMeals: apiGetFeaturedMeals,
+    getSubscriptionStatus: apiGetSubscriptionStatus,
+    getPaymentHistory: apiGetPaymentHistory,
     updateFitnessGoal: apiUpdateFitnessGoal,
     getStreaksAndAchievements: apiGetStreaksAndAchievements,
     uploadImage: apiUploadImage,
@@ -155,7 +175,7 @@ const Dashboard = () => {
     deleteProgressPhoto: apiDeleteProgressPhoto
   } = useApi();
   const location = useLocation();
-  
+
   // Use useCallback to memoize API function calls to prevent infinite loops
   const getAllWorkouts = React.useCallback(apiGetAllWorkouts, []);
   const getFeaturedMeals = React.useCallback(apiGetFeaturedMeals, []);
@@ -164,7 +184,7 @@ const Dashboard = () => {
   const updateFitnessGoal = React.useCallback(apiUpdateFitnessGoal, []);
   const getStreaksAndAchievements = React.useCallback(apiGetStreaksAndAchievements, []);
   const getProgressPhotos = React.useCallback(apiGetProgressPhotos, []);
-  
+
   const [workouts, setWorkouts] = useState([]);
   const [meals, setMeals] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -178,13 +198,13 @@ const Dashboard = () => {
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [goalSaving, setGoalSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // New state variables for photo uploads
   const [uploadingImage, setUploadingImage] = useState(false);
   const [userPhotos, setUserPhotos] = useState([]);
   const [photoLikes, setPhotoLikes] = useState({});
   const fileInputRef = useRef(null);
-  
+
   // Calculate calories burned based on steps (roughly 0.04 calories per step for average person)
   const calculateCaloriesFromSteps = (steps) => {
     return Math.round(steps * 0.04);
@@ -195,22 +215,22 @@ const Dashboard = () => {
     const newSteps = parseInt(e.target.value) || 0;
     setSteps(newSteps);
     const stepCalories = calculateCaloriesFromSteps(newSteps);
-    
+
     // Add workout calories (estimated at 300 for a typical hour-long session)
     const workoutCalories = 300;
     setCaloriesBurned(stepCalories + workoutCalories);
   };
-  
+
   useEffect(() => {
     let isMounted = true;
-    
+
     const fetchUserData = async () => {
       if (!isAuthenticated || !isMounted) return;
 
       try {
         console.log('Fetching data for authenticated user');
         setIsLoading(true);
-        
+
         // For a real application, fetch actual data from API
         const workoutData = await getAllWorkouts();
         if (isMounted && workoutData && workoutData.length > 0) {
@@ -219,7 +239,7 @@ const Dashboard = () => {
           // Empty state, no prefed data
           setWorkouts([]);
         }
-        
+
         const mealData = await getFeaturedMeals();
         if (isMounted && mealData && mealData.length > 0) {
           setMeals(mealData.slice(0, 3));
@@ -227,7 +247,7 @@ const Dashboard = () => {
           // Empty state, no prefed data
           setMeals([]);
         }
-        
+
         // Fetch subscription status if user is authenticated
         if (user && isMounted) {
           try {
@@ -235,10 +255,10 @@ const Dashboard = () => {
             if (isMounted) {
               setSubscriptionInfo(subscriptionData);
             }
-            
+
             // Also fetch achievements data
             const streakData = await getStreaksAndAchievements();
-            
+
             // Fetch payment history for members
             if (user.isMember && isMounted) {
               const paymentsData = await getPaymentHistory();
@@ -250,7 +270,7 @@ const Dashboard = () => {
             console.error('Error fetching subscription data:', error);
           }
         }
-        
+
         // Check if there's a URL parameter to show the goal dialog
         const searchParams = new URLSearchParams(location.search);
         if (searchParams.get('showGoalDialog') === 'true') {
@@ -274,7 +294,7 @@ const Dashboard = () => {
           setMealPlan([]);
           setIndianMealPlan([]);
         }
-        
+
         // Fetch user's progress photos
         try {
           const photoData = await getProgressPhotos();
@@ -297,35 +317,35 @@ const Dashboard = () => {
         }
       }
     };
-    
+
     fetchUserData();
-    
+
     // Cleanup function to prevent state updates after unmount
     return () => {
       isMounted = false;
     };
   }, [
-    isAuthenticated, 
-    getAllWorkouts, 
-    getFeaturedMeals, 
-    getSubscriptionStatus, 
-    getPaymentHistory, 
-    user?.id, 
-    user?.isMember, 
+    isAuthenticated,
+    getAllWorkouts,
+    getFeaturedMeals,
+    getSubscriptionStatus,
+    getPaymentHistory,
+    user?.id,
+    user?.isMember,
     user?.fitnessGoal,
     location.search, // Add location.search as a dependency to react to URL changes
     getStreaksAndAchievements,
     getProgressPhotos
   ]);
-  
+
   const handleCategorySelect = async (category) => {
     try {
       console.log('handleCategorySelect called with:', category);
       setGoalSaving(true);
-      
+
       // Update local state immediately for better UX
       setSelectedCategory(category);
-      
+
       // Only generate plans for premium users
       if (user?.isMember) {
         console.log('Generating plans for premium user');
@@ -335,18 +355,18 @@ const Dashboard = () => {
       } else {
         console.log('User is not premium, not generating plans');
       }
-      
+
       // Close the dialog to show something is happening
       setShowCategoryDialog(false);
-      
+
       // Save the fitness goal using the dedicated API endpoint
       console.log('Calling updateFitnessGoal API');
       const response = await updateFitnessGoal(category);
       console.log('API response:', response);
-      
+
       if (response && response.success) {
         console.log('Fitness goal saved successfully:', response);
-        
+
         // If this was triggered by a URL parameter, clear it by redirecting
         if (location.search.includes('showGoalDialog=true')) {
           // Use history to replace the current URL without the parameter
@@ -364,13 +384,13 @@ const Dashboard = () => {
       setGoalSaving(false);
     }
   };
-  
+
   // Format date function
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
-  
+
   // Membership card with subscription details
   const SubscriptionCard = () => (
     <div className="bg-gray-800 p-6 rounded-xl">
@@ -379,22 +399,21 @@ const Dashboard = () => {
         <div>
           <div className="flex justify-between items-center mb-2">
             <p className="text-white">Status:</p>
-            <span className={`px-2 py-1 rounded text-sm ${
-              subscriptionInfo.isActive 
-                ? 'bg-green-500 bg-opacity-20 text-green-300' 
+            <span className={`px-2 py-1 rounded text-sm ${subscriptionInfo.isActive
+                ? 'bg-green-500 bg-opacity-20 text-green-300'
                 : 'bg-red-500 bg-opacity-20 text-red-300'
-            }`}>
+              }`}>
               {subscriptionInfo.isActive ? 'Active' : 'Inactive'}
             </span>
           </div>
           <div className="flex justify-between items-center mb-2">
             <p className="text-white">Plan:</p>
             <span className="text-gray-300">
-              {subscriptionInfo.membershipType === 'premium' 
-                ? 'Premium Yearly' 
-                : subscriptionInfo.membershipType === 'monthly' 
-                ? 'Premium Monthly' 
-                : 'Basic'}
+              {subscriptionInfo.membershipType === 'premium'
+                ? 'Premium Yearly'
+                : subscriptionInfo.membershipType === 'monthly'
+                  ? 'Premium Monthly'
+                  : 'Basic'}
             </span>
           </div>
           {subscriptionInfo.isActive && (
@@ -405,21 +424,20 @@ const Dashboard = () => {
               </div>
               <div className="flex justify-between items-center">
                 <p className="text-white">Days remaining:</p>
-                <span className={`font-bold ${
-                  subscriptionInfo.daysRemaining > 30 
-                    ? 'text-green-400' 
-                    : subscriptionInfo.daysRemaining > 7 
-                    ? 'text-yellow-400' 
-                    : 'text-red-400'
-                }`}>
+                <span className={`font-bold ${subscriptionInfo.daysRemaining > 30
+                    ? 'text-green-400'
+                    : subscriptionInfo.daysRemaining > 7
+                      ? 'text-yellow-400'
+                      : 'text-red-400'
+                  }`}>
                   {subscriptionInfo.daysRemaining}
                 </span>
               </div>
             </>
           )}
-          
+
           {!subscriptionInfo.isActive && (
-            <Link 
+            <Link
               to="/membership"
               className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg mt-4 text-sm hover:bg-blue-700 transition-colors w-full text-center"
             >
@@ -435,7 +453,7 @@ const Dashboard = () => {
       )}
     </div>
   );
-  
+
   // Payment History Card
   const PaymentHistoryCard = () => (
     <motion.div
@@ -447,7 +465,7 @@ const Dashboard = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-white">Payment History</h2>
       </div>
-      
+
       <div className="bg-gray-800 rounded-xl overflow-hidden">
         {paymentHistory.length > 0 ? (
           <div className="divide-y divide-gray-700">
@@ -457,13 +475,12 @@ const Dashboard = () => {
                   <h3 className="text-white font-medium">
                     {payment.planType === 'premium' ? 'Premium Yearly' : 'Premium Monthly'}
                   </h3>
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    payment.status === 'successful' 
-                      ? 'bg-green-500 bg-opacity-20 text-green-300' 
+                  <span className={`px-2 py-1 rounded text-xs ${payment.status === 'successful'
+                      ? 'bg-green-500 bg-opacity-20 text-green-300'
                       : payment.status === 'created' || payment.status === 'attempted'
-                      ? 'bg-yellow-500 bg-opacity-20 text-yellow-300'
-                      : 'bg-red-500 bg-opacity-20 text-red-300'
-                  }`}>
+                        ? 'bg-yellow-500 bg-opacity-20 text-yellow-300'
+                        : 'bg-red-500 bg-opacity-20 text-red-300'
+                    }`}>
                     {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
                   </span>
                 </div>
@@ -487,22 +504,22 @@ const Dashboard = () => {
       </div>
     </motion.div>
   );
-  
+
   // Goal selection dialog component with improved event handling
   const GoalSelectionDialog = () => {
     console.log('Rendering GoalSelectionDialog');
-    
+
     const handleClick = (category) => {
       console.log('GoalSelectionDialog handleClick:', category);
       handleCategorySelect(category);
     };
-    
+
     return (
       <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={(e) => e.stopPropagation()}>
         <div className="bg-gray-800 p-6 rounded-xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
           <h3 className="text-xl font-bold text-white mb-4">What's your fitness goal?</h3>
           <p className="text-gray-300 mb-6">Select a category to get personalized recommendations:</p>
-          
+
           <div className="space-y-3">
             {workoutCategories.map(category => (
               <button
@@ -510,9 +527,8 @@ const Dashboard = () => {
                 type="button"
                 onClick={() => handleClick(category.name)}
                 disabled={goalSaving && selectedCategory === category.name}
-                className={`w-full text-left bg-gray-700 hover:bg-gray-600 p-4 rounded-lg transition-colors ${
-                  goalSaving && selectedCategory === category.name ? 'opacity-75 cursor-not-allowed' : ''
-                }`}
+                className={`w-full text-left bg-gray-700 hover:bg-gray-600 p-4 rounded-lg transition-colors ${goalSaving && selectedCategory === category.name ? 'opacity-75 cursor-not-allowed' : ''
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -530,13 +546,13 @@ const Dashboard = () => {
       </div>
     );
   };
-  
+
   // Personalized Meal Plan Component
   const PersonalizedMealPlan = () => {
     if (!user?.isMember || !selectedCategory || !indianMealPlan.length) {
       return null;
     }
-    
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -550,11 +566,11 @@ const Dashboard = () => {
             Premium
           </span>
         </div>
-        
+
         <p className="text-[var(--color-light-alt)] mb-4">
           Based on your {selectedCategory} goal, we've crafted this Indian meal plan to support your fitness journey:
         </p>
-        
+
         <div className="space-y-6">
           {indianMealPlan.map((plan, planIndex) => (
             <div key={planIndex}>
@@ -573,7 +589,7 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
-        
+
         <div className="mt-4 pt-4 border-t border-gray-700">
           <p className="text-[var(--color-light-alt)] text-sm">
             <span className="text-yellow-500">✓</span> Tailored to Indian preferences with authentic ingredients
@@ -598,27 +614,27 @@ const Dashboard = () => {
       alert('Please select an image file');
       return;
     }
-    
+
     // Check file size (max 5MB)
     const MAX_SIZE = 5 * 1024 * 1024; // 5MB
     if (file.size > MAX_SIZE) {
       alert('File size exceeds 5MB. Please select a smaller image.');
       return;
     }
-    
+
     try {
       setUploadingImage(true);
-      
+
       // Convert to base64
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = async () => {
         try {
           const base64Image = reader.result;
-          
+
           // Upload image to server
           const uploadResult = await apiUploadImage(base64Image);
-          
+
           if (uploadResult && uploadResult.imageUrl) {
             // Save progress photo record
             const caption = `Progress photo from ${new Date().toLocaleDateString()}`;
@@ -626,10 +642,10 @@ const Dashboard = () => {
               imageUrl: uploadResult.imageUrl,
               caption: caption
             };
-            
+
             console.log('Saving progress photo with data:', photoData);
             const savedPhoto = await apiSaveProgressPhoto(photoData);
-            
+
             if (savedPhoto) {
               // Add to state
               setUserPhotos(prev => [savedPhoto, ...prev]);
@@ -664,10 +680,10 @@ const Dashboard = () => {
     try {
       // Call API to like/unlike the photo
       const response = await apiLikeProgressPhoto(photoId);
-      
+
       if (response && response.likes) {
         // Update the photos in state to reflect the new likes
-        setUserPhotos(prev => 
+        setUserPhotos(prev =>
           prev.map(photo => {
             if (photo._id === photoId) {
               return {
@@ -690,7 +706,7 @@ const Dashboard = () => {
     if (!confirm('Are you sure you want to delete this photo?')) {
       return;
     }
-    
+
     try {
       await apiDeleteProgressPhoto(photoId);
       // Remove from state
@@ -711,7 +727,7 @@ const Dashboard = () => {
             Welcome back, {user?.name || 'User'}!
           </p>
         </div>
-        
+
         {/* Check for upgraded param to show welcome message */}
         {location.search.includes('upgraded=true') && (
           <div className="bg-green-500 bg-opacity-20 border border-green-500 border-opacity-30 text-green-100 p-4 rounded-lg mb-6 flex items-center">
@@ -721,44 +737,67 @@ const Dashboard = () => {
             <p>Welcome to your premium experience! Enjoy all the features and benefits of your membership.</p>
           </div>
         )}
-        
+
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column */}
           <div className="lg:col-span-2 space-y-6">
             {/* Activity tracking panel */}
             <TrackingPanel user={user} />
+
             
+
             {/* Personalized Meal Plan (only for premium users) */}
             {user?.isMember && <PersonalizedMealPlan />}
-            
+
             {/* Recent activities */}
             <div className="bg-[var(--color-dark-alt)] p-6 rounded-xl shadow-lg">
               <h2 className="text-xl font-semibold text-[var(--color-light)] mb-4">Recent Activities</h2>
               {/* ... existing recent activities content ... */}
             </div>
-            
+
             {/* ... other content ... */}
+
+            <div className="bg-[var(--color-dark-alt)] p-6 rounded-xl shadow-lg">
+            <FoodAnalyzer />
+            </div>
           </div>
-          
+
           {/* Right column */}
           <div className="space-y-6">
             {/* Membership Status Card */}
             <MembershipStatus user={user} />
-            
+
             {/* Quick Actions */}
             <div className="bg-[var(--color-dark-alt)] p-6 rounded-xl shadow-lg">
               {/* ... existing quick actions content ... */}
             </div>
-            
+
             {/* ... any other content ... */}
           </div>
+
+
+
         </div>
+
         
+        {user?.isMember?
+          <div className="space-y-6">
+          <MembershipStatus user={user} />
+          <div className="bg-[var(--color-dark-alt)] p-6 rounded-xl shadow-lg">
+          <DashboardTabs />
+          </div>
+        </div>:""
+        }
+
+
         {/* Goal Selection Dialog */}
         {showCategoryDialog && <GoalSelectionDialog />}
-        
+
+
+
         {/* Progress photos section - updated to use backend data */}
-        <div className="container mx-auto px-4 mb-10">
+        <div className=" mt-6 container mx-auto px-4 mb-10">
           <div className="bg-[var(--color-dark-alt)] rounded-lg shadow-lg p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">My Progress Photos</h2>
@@ -792,7 +831,7 @@ const Dashboard = () => {
                 className="hidden"
               />
             </div>
-            
+
             {isLoading ? (
               <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
@@ -826,7 +865,7 @@ const Dashboard = () => {
                         <p className="text-sm text-[var(--color-light-alt)]">
                           {new Date(photo.date).toLocaleDateString()}
                         </p>
-                        <button 
+                        <button
                           onClick={() => handleDeletePhoto(photo._id)}
                           className="text-red-500 hover:text-red-700"
                         >
@@ -838,18 +877,16 @@ const Dashboard = () => {
                       <p className="mb-3">{photo.caption}</p>
                       <button
                         onClick={() => handleLikePhoto(photo._id)}
-                        className={`flex items-center space-x-1 ${
-                          photo.likes?.some(like => like.user === user?._id)
-                            ? 'text-[var(--color-accent)]' 
+                        className={`flex items-center space-x-1 ${photo.likes?.some(like => like.user === user?._id)
+                            ? 'text-[var(--color-accent)]'
                             : 'text-[var(--color-light-alt)]'
-                        }`}
+                          }`}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" 
-                          className={`h-5 w-5 ${
-                            photo.likes?.some(like => like.user === user?._id) ? 'fill-current' : ''
-                          }`} 
-                          fill="none" 
-                          viewBox="0 0 24 24" 
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                          className={`h-5 w-5 ${photo.likes?.some(like => like.user === user?._id) ? 'fill-current' : ''
+                            }`}
+                          fill="none"
+                          viewBox="0 0 24 24"
                           stroke="currentColor"
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -862,6 +899,7 @@ const Dashboard = () => {
               </div>
             )}
           </div>
+
         </div>
       </div>
     </div>

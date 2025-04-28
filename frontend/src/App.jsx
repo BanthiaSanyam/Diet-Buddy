@@ -16,6 +16,8 @@ import Rewards from './pages/Rewards.jsx';
 import Blog from './pages/Blog.jsx';
 import BlogPost from './pages/BlogPost.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
+import MealCalorieDetector from './pages/MealCalorieDetector.jsx';
+import Caloriepred from './pages/Caloriepred.jsx';
 
 function App() {
   return (
@@ -69,12 +71,23 @@ function App() {
                   </PrivateRoute>
                 }
               />
+        
+              
+            <Route
+                path="/calculate"
+                element={
+                  <PrivateRoute>
+                    <Caloriepred/>
+                  </PrivateRoute>
+                }
+              />
             </Routes>
+
           </main>
           
           {/* Chatbot component - available on all pages */}
           <Chatbot />
-        </div>
+       </div>
       </Router>
     </AuthProvider>
   );

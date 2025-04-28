@@ -308,6 +308,7 @@ export const useApi = () => {
     addMealToHistory,
     getWorkoutHistory,
     getMealHistory,
+   
     getProgressSummary,
     // Favorites
     addWorkoutToFavorites,

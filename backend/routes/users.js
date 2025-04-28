@@ -102,4 +102,33 @@ router.delete('/favorites/meals/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// Update fitness goal (protected)
+router.post('/fitness-goal', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { goal } = req.body;
+    
+    if (!goal) {
+      return res.status(400).json({ message: 'Please provide a fitness goal' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.fitnessGoal = goal;
+    await user.save();
+
+    res.json({ 
+      success: true,
+      message: 'Fitness goal updated successfully',
+      fitnessGoal: goal
+    });
+  } catch (error) {
+    console.error('Error updating fitness goal:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 module.exports = router; 

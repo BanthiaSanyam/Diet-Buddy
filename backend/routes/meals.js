@@ -3,6 +3,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 const User = require('../models/User');
 const Meal = require('../models/Meal');
 const mealController = require('../controllers/mealController');
+const aiController = require('../controllers/aiController');
 
 const router = express.Router();
 

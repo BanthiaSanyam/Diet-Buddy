@@ -9,7 +9,7 @@ const Login = () => {
     password: ''
   });
   const [errors, setErrors] = useState({});
-  const { login, error, loading } = useAuth();
+  const {login, error, loading} = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {

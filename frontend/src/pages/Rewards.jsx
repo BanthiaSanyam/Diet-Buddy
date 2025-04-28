@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import useApi from '../hooks/useApi';
+import StatsPage from './statepage';
 
 const Rewards = () => {
   const api = useApi();
