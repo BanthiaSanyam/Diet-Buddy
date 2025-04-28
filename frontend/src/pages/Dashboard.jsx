@@ -204,6 +204,7 @@ const Dashboard = () => {
   const [userPhotos, setUserPhotos] = useState([]);
   const [photoLikes, setPhotoLikes] = useState({});
   const fileInputRef = useRef(null);
+  const premium = localStorage.getItem('premium') || false;
 
   // Calculate calories burned based on steps (roughly 0.04 calories per step for average person)
   const calculateCaloriesFromSteps = (steps) => {
@@ -347,7 +348,7 @@ const Dashboard = () => {
       setSelectedCategory(category);
 
       // Only generate plans for premium users
-      if (user?.isMember) {
+      if (premium) {
         console.log('Generating plans for premium user');
         setWorkoutPlan(generateWorkoutPlan(category));
         setMealPlan(generateMealPlan(category));
@@ -549,7 +550,7 @@ const Dashboard = () => {
 
   // Personalized Meal Plan Component
   const PersonalizedMealPlan = () => {
-    if (!user?.isMember || !selectedCategory || !indianMealPlan.length) {
+    if (!premium || !selectedCategory || !indianMealPlan.length) {
       return null;
     }
 
@@ -748,7 +749,7 @@ const Dashboard = () => {
             
 
             {/* Personalized Meal Plan (only for premium users) */}
-            {user?.isMember && <PersonalizedMealPlan />}
+            { premium && <PersonalizedMealPlan />}
 
             {/* Recent activities */}
             <div className="bg-[var(--color-dark-alt)] p-6 rounded-xl shadow-lg">
@@ -781,7 +782,7 @@ const Dashboard = () => {
         </div>
 
         
-        {user?.isMember?
+        { premium?
           <div className="space-y-6">
           <MembershipStatus user={user} />
           <div className="bg-[var(--color-dark-alt)] p-6 rounded-xl shadow-lg">
