@@ -54,6 +54,7 @@ const plans = [
 const Membership = () => {
   const { user, loading: authLoading, setUser, updateProfile } = useAuth();
   const { createOrder, createMonthlyOrder, verifyPayment, verifyMonthlyPayment, testUpgrade } = useApi();
+  const premium = localStorage.getItem('premium') || false;
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -130,85 +131,90 @@ const Membership = () => {
   
   // Safe function to update user data that works with or without setUser
  
-const safeUpdateUser = async (userData) => {
-    try {
-      if (typeof setUser === 'function') {
-        setUser(prev => ({ ...prev, ...userData }));
-      } else if (typeof updateProfile === 'function') {
-        await updateProfile(userData);
-      } else {
-        console.warn('No method available to update user data');
-      }
-    } catch (error) {
-      console.error('Error updating user data:', error);
-    }
-  };
+// const safeUpdateUser = async (userData) => {
+//     try {
+//       if (typeof setUser === 'function') {
+//         setUser(prev => ({ ...prev, ...userData }));
+//       } else if (typeof updateProfile === 'function') {
+//         await updateProfile(userData);
+//       } else {
+//         console.warn('No method available to update user data');
+//       }
+//     } catch (error) {
+//       console.error('Error updating user data:', error);
+//     }
+//   };
 
-  const handleUpgrade = async (planId) => {
-    if (!user) {
-      navigate('/login?redirect=membership');
-      return;
-    }
+//   const handleUpgrade = async () => {
+//       localStorage.setItem('premium' ,true);
+//     if (!user) {
+//       navigate('/login?redirect=membership');
+//       return;
+//     }
 
-    try {
-      setPaymentLoading(true);
-      setPaymentStatus({ message: null, type: null });
+//     try {
+//       setPaymentLoading(true);
+//       setPaymentStatus({ message: null, type: null });
 
-      // In development mode, allow test upgrades
-      if (process.env.NODE_ENV === 'development') {
-        setPaymentStatus({
-          message: "Development mode: Using test upgrade flow...",
-          type: 'info'
-        });
-        return handleTestUpgrade(planId);
-      }
+//       // In development mode, allow test upgrades
+//       if (process.env.NODE_ENV === 'development') {
+//         setPaymentStatus({
+//           message: "Development mode: Using test upgrade flow...",
+//           type: 'info'
+//         });
+//         return handleTestUpgrade(planId);
+//       }
 
-      // Production mode - real payment flow
-      setPaymentStatus({
-        message: "Preparing your upgrade...",
-        type: 'info'
-      });
+//       // Production mode - real payment flow
+//       setPaymentStatus({
+//         message: "Preparing your upgrade...",
+//         type: 'info'
+//       });
 
-      // Load Razorpay SDK
-      const isScriptLoaded = await loadRazorpayScript();
-      if (!isScriptLoaded) {
-        throw new Error("Failed to load payment gateway");
-      }
+//       // Load Razorpay SDK
+//       const isScriptLoaded = await loadRazorpayScript();
+//       if (!isScriptLoaded) {
+//         throw new Error("Failed to load payment gateway");
+//       }
 
-      if (!verifyRazorpay()) {
-        throw new Error("Payment gateway not initialized");
-      }
+//       if (!verifyRazorpay()) {
+//         throw new Error("Payment gateway not initialized");
+//       }
 
-      // Create order based on plan type
-      setPaymentStatus({
-        message: "Creating payment order...",
-        type: 'info'
-      });
+//       // Create order based on plan type
+//       setPaymentStatus({
+//         message: "Creating payment order...",
+//         type: 'info'
+//       });
 
-      const orderResponse = planId === 'premium' 
-        ? await createOrder() 
-        : await createMonthlyOrder();
+//       const orderResponse = planId === 'premium' 
+//         ? await createOrder() 
+//         : await createMonthlyOrder();
 
-      if (!orderResponse?.orderId) {
-        throw new Error(orderResponse?.message || "Failed to create payment order");
-      }
+//       if (!orderResponse?.orderId) {
+//         throw new Error(orderResponse?.message || "Failed to create payment order");
+//       }
 
-      // Initialize Razorpay payment
-      initializeRazorpay(orderResponse, planId);
+//       // Initialize Razorpay payment
+//       initializeRazorpay(orderResponse, planId);
 
-    } catch (error) {
-      console.error('Upgrade error:', error);
-      setPaymentStatus({
-        message: error.message || 'Payment processing failed',
-        type: 'error'
-      });
-      setPaymentLoading(false);
-    }
-  };
-
+//     } catch (error) {
+//       console.error('Upgrade error:', error);
+//       setPaymentStatus({
+//         message: error.message || 'Payment processing failed',
+//         type: 'error'
+//       });
+//       setPaymentLoading(false);
+//     }
+//   };
+  const handleUpgrade = async () => {
+      localStorage.setItem('premium' ,true);
+  }
+  
   const handleTestUpgrade = async (planId) => {
     try {
       const testUpgradeResult = await testUpgrade({ planType: planId });
+    
       
       if (testUpgradeResult.success) {
         await safeUpdateUser({
@@ -407,8 +413,9 @@ const safeUpdateUser = async (userData) => {
               </ul>
               
               <button
-                onClick={() => plan.id !== 'basic' ? handleUpgrade(plan.id) : undefined}
-                disabled={authLoading || paymentLoading || (user?.membershipType === plan.id)}
+                onClick={handleUpgrade}
+                
+                disabled={authLoading || paymentLoading || (premium)}
                 className={`w-full py-3 rounded-lg font-semibold shadow-lg transition-all transform hover:-translate-y-1 ${
                   plan.id === 'premium'
                     ? 'bg-[var(--color-accent)] text-[var(--color-dark)] hover:bg-[var(--color-accent-dark)]'
